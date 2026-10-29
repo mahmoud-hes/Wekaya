@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="theme-color" content="#204C3F">
+<meta name="description" content="وقاية: رفيق للتوعية بالكبد الدهني الأيضي (MASLD) ومتابعة التحاليل والغذاء. أداة تعليمية وليست تشخيصاً.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>وقاية - Wekaya</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-container" id="app">
+  <div class="offline-banner" id="offlineBanner" role="status" data-i18n="offline"></div>
+
+  <header class="app-header">
+    <div class="brand-section">
+      <img src="logo.png" alt="" class="brand-logo-img" width="40" height="40">
+      <div class="brand-text"><h1 data-i18n="brand"></h1><span class="brand-badge" data-i18n="brand_sub"></span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon-soft" data-action="toggle-lang" id="btnLang">EN</button>
+      <button class="btn-icon-soft" data-action="open-settings" aria-label="الإعدادات" data-i18n-aria="settings">⚙️</button>
+      <button class="btn-user-pill" data-action="edit-profile" aria-label="الملف الشخصي" data-i18n-aria="profile">
+        <span class="avatar-circle" id="avatarInitial">؟</span><span id="pillName"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- ================= Dashboard ================= -->
+    <section class="tab-pane active" id="tab-dashboard" aria-labelledby="nav-dashboard">
+      <div class="disclaimer-bar" role="note"><strong data-i18n="disc_title"></strong> <span data-i18n="disc_body"></span></div>
+
+      <div class="card empty-state" id="dashEmpty">
+        <div class="empty-icon" aria-hidden="true">🌿</div>
+        <h3 data-i18n="empty_title"></h3>
+        <p data-i18n="empty_body"></p>
+        <button class="btn-primary" data-action="edit-profile" data-i18n="empty_cta"></button>
+      </div>
+
+      <div id="dashMain" hidden>
+        <div class="patient-vital-bar">
+          <div class="patient-meta-row"><div><div class="patient-greeting" id="patientGreeting"></div><div class="patient-date" id="patientDate"></div></div></div>
+          <div class="vital-stats-grid">
+            <div class="vital-stat-item"><span class="vital-stat-label" data-i18n="v_weight"></span><span class="vital-stat-val"><span id="vitalWeight">—</span> <small>kg</small></span></div>
+            <div class="vital-stat-item"><span class="vital-stat-label">BMI</span><span class="vital-stat-val" id="vitalBmi">—</span></div>
+            <div class="vital-stat-item"><span class="vital-stat-label" data-i18n="v_goal"></span><span class="vital-stat-val" id="vitalGoal">—</span></div>
+          </div>
+        </div>
+        <div class="card" id="bmiCard" style="padding:12px 16px"><span class="bmi-badge-pill" id="bmiBadge"></span> <span id="bmiText" style="font-size:.82rem"></span></div>
+
+        <div class="card liver-status-hero tier-unknown" id="liverHero">
+          <span class="status-badge-pill" id="heroBadge"></span>
+          <h2 class="status-hero-title" id="heroTitle"></h2>
+          <p class="status-hero-desc" id="heroDesc"></p>
+          <ul class="notes-list" id="heroNotes"></ul>
+          <div class="next-investigation-box">
+            <div class="next-inv-header"><strong data-i18n="next_title"></strong><span class="next-date-badge" id="nextDate">—</span></div>
+            <p style="font-size:.82rem;margin:4px 0" id="nextLabel"></p>
+            <span class="overdue-flag" id="heroOverdue" hidden data-i18n="overdue"></span>
+            <ul class="panel-items-list" id="panelList"></ul>
+            <p style="font-size:.82rem;margin-top:6px"><strong id="doctorAction"></strong></p>
+          </div>
+        </div>
+        <div class="btn-stack" style="margin-bottom:16px">
+          <button class="btn-secondary" data-action="print-report" data-i18n="btn_report"></button>
+          <button class="btn-secondary" data-action="download-ics" data-i18n="btn_ics"></button>
+        </div>
+
+        <div class="card ramadan-card" id="ramadanCard" hidden></div>
+
+        <div class="card calorie-gauge-card">
+          <div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="cal_title"></span></div></div>
+          <div class="calorie-meter-wrapper">
+            <div class="calorie-ring-box">
+              <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="calorie-ring-bg" cx="60" cy="60" r="52" fill="none" stroke-width="10"/><circle class="calorie-ring-progress" id="ringProgress" cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/></svg>
+              <div class="calorie-ring-center"><span class="calorie-remaining-val" id="calRemaining">0</span><span class="calorie-remaining-label" id="calRemLabel"></span></div>
+            </div>
+            <div class="calorie-breakdown-details">
+              <div class="calorie-stat-line"><span class="calorie-stat-title" data-i18n="cal_target"></span><span class="calorie-stat-number" id="calTarget">0</span></div>
+              <div class="calorie-stat-line"><span class="calorie-stat-title" data-i18n="cal_eaten"></span><span class="calorie-stat-number" id="calConsumed">0</span></div>
+              <div class="calorie-stat-line"><span class="calorie-stat-title" data-i18n="cal_burn"></span><span class="calorie-stat-number" id="calBurned">0</span></div>
+            </div>
+          </div>
+          <div class="macro-pills-row">
+            <div class="macro-pill"><span class="macro-name" data-i18n="m_protein"></span><span class="macro-val"><span id="macroP">0</span>g</span></div>
+            <div class="macro-pill"><span class="macro-name" data-i18n="m_carbs"></span><span class="macro-val"><span id="macroC">0</span>g</span></div>
+            <div class="macro-pill"><span class="macro-name" data-i18n="m_fats"></span><span class="macro-val"><span id="macroF">0</span>g</span></div>
+          </div>
+          <ul class="notes-list" id="planNotes"></ul>
+        </div>
+
+        <div class="card activity-card">
+          <div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="act_title"></span></div></div>
+          <div class="activity-content">
+            <div class="activity-badge-time"><span id="actTime">0</span><small data-i18n="min"></small></div>
+            <div class="activity-details"><div class="activity-title" id="actTitle"></div><div class="activity-desc" id="actDesc"></div></div>
+          </div>
+          <p class="form-hint" id="actSafety" style="margin-top:8px"></p>
+          <button class="activity-check-btn" id="btnToggleActivity" data-action="toggle-activity" aria-pressed="false" style="margin-top:8px"></button>
+        </div>
+
+        <div class="card tip-card">
+          <span class="tip-badge-tag" id="tipTag"></span>
+          <h3 class="tip-title" id="tipTitle"></h3>
+          <p class="tip-body" id="tipBody"></p>
+          <div class="tip-footer"><span class="tip-source" id="tipSource"></span><button class="btn-tip-next" data-action="next-tip" data-i18n="tip_next"></button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Food ================= -->
+    <section class="tab-pane" id="tab-food" aria-labelledby="nav-food">
+      <div class="search-bar-wrapper"><input class="search-input" id="foodSearch" type="search" data-i18n-ph="food_search" aria-label="بحث" autocomplete="off"></div>
+      <div class="filter-pills-scroll" id="foodFilters" role="group" aria-label="تصفية الأطعمة" data-i18n-aria="food_filter"></div>
+      <div class="food-items-list" id="foodList"></div>
+      <p class="food-source-note" data-i18n="food_note"></p>
+      <button class="btn-secondary" data-action="open-custom-food" style="margin-top:10px" data-i18n="food_custom"></button>
+      <div class="today-logged-section">
+        <div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="food_today"></span></div><strong id="loggedTotal"></strong></div>
+        <div id="loggedList"></div>
+      </div>
+    </section>
+
+    <!-- ================= Labs ================= -->
+    <section class="tab-pane" id="tab-labs" aria-labelledby="nav-labs">
+      <div class="card">
+        <div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="lab_title"></span></div></div>
+        <p class="card-subtitle" data-i18n="lab_sub"></p>
+        <form id="labForm" novalidate>
+          <div class="form-group"><label class="form-label" for="labDate" data-i18n="lab_date"></label><input class="form-control" id="labDate" type="date" required></div>
+          <div class="form-grid-2">
+            <div class="form-group"><label class="form-label" for="labAst">AST (U/L)</label><input class="form-control" id="labAst" type="number" inputmode="decimal" step="any" min="5" max="2000" required></div>
+            <div class="form-group"><label class="form-label" for="labAlt">ALT (U/L)</label><input class="form-control" id="labAlt" type="number" inputmode="decimal" step="any" min="5" max="2000" required></div>
+          </div>
+          <div class="form-group"><label class="form-label" for="labPlt" data-i18n="lab_plt"></label><input class="form-control" id="labPlt" type="number" inputmode="decimal" step="any" min="10" max="1500" required><span class="form-hint" data-i18n="lab_plt_hint"></span></div>
+          <details class="advanced"><summary data-i18n="lab_adv"></summary>
+            <p class="form-hint" data-i18n="lab_adv_hint"></p>
+            <div class="form-grid-2">
+              <div class="form-group"><label class="form-label" for="labCr">Creatinine (mg/dL)</label><input class="form-control" id="labCr" type="number" inputmode="decimal" step="any" min="0.2" max="15"></div>
+              <div class="form-group"><label class="form-label" for="labBili">Bilirubin (mg/dL)</label><input class="form-control" id="labBili" type="number" inputmode="decimal" step="any" min="0.1" max="50"></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="labInr">INR</label><input class="form-control" id="labInr" type="number" inputmode="decimal" step="any" min="0.5" max="10"></div>
+          </details>
+          <p class="form-hint" id="labMsg" role="alert" style="color:#9B2F2A"></p>
+          <button class="btn-primary" type="submit" data-i18n="lab_save"></button>
+        </form>
+      </div>
+      <div class="card"><div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="lab_hist"></span></div></div><div id="labHistory"></div></div>
+    </section>
+
+    <!-- ================= Progress ================= -->
+    <section class="tab-pane" id="tab-progress" aria-labelledby="nav-progress">
+      <div class="card">
+        <div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="prog_title"></span></div></div>
+        <form id="weightForm" novalidate>
+          <div class="form-grid-2">
+            <div class="form-group"><label class="form-label" for="wDate" data-i18n="date_label"></label><input class="form-control" id="wDate" type="date" required></div>
+            <div class="form-group"><label class="form-label" for="wValue" data-i18n="v_weight"></label><input class="form-control" id="wValue" type="number" inputmode="decimal" step="0.1" min="30" max="300" required></div>
+          </div>
+          <button class="btn-primary" type="submit" data-i18n="prog_add"></button>
+        </form>
+      </div>
+      <div class="card"><div class="chart-container-box" id="weightChart" role="img"></div><p class="trend-note" data-i18n="prog_note"></p></div>
+      <div class="trend-stats-summary">
+        <div class="trend-stat-card"><span class="trend-stat-title" data-i18n="prog_now"></span><span class="trend-stat-value" id="statCurrent">—</span></div>
+        <div class="trend-stat-card"><span class="trend-stat-title" data-i18n="prog_change"></span><span class="trend-stat-value" id="statChange">—</span><span class="trend-stat-sub neutral" id="statChangeSub"></span></div>
+      </div>
+      <div class="card" id="ladderBox"></div>
+    </section>
+
+    <!-- ================= Guidelines ================= -->
+    <section class="tab-pane" id="tab-guidelines" aria-labelledby="nav-guidelines">
+      <div id="pillars"></div>
+      <div class="card"><div class="card-header"><div class="card-title-group"><span class="card-title" data-i18n="refs_title"></span></div></div><ol class="ref-list" id="refList"></ol></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="التنقل">
+    <button class="nav-tab-btn active" id="nav-dashboard" data-tab="dashboard" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span data-i18n="nav_home"></span></button>
+    <button class="nav-tab-btn" id="nav-food" data-tab="food"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10M17 3c-2 2-3 4-3 7h3v11"/></svg><span data-i18n="nav_food"></span></button>
+    <button class="nav-tab-btn btn-doctor-nav" data-action="open-faq" aria-label="الأسئلة الشائعة" data-i18n-aria="nav_faq"><span class="nav-icon-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z"/></svg></span><span data-i18n="nav_faq"></span></button>
+    <button class="nav-tab-btn" id="nav-labs" data-tab="labs"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg><span data-i18n="nav_labs"></span></button>
+    <button class="nav-tab-btn" id="nav-progress" data-tab="progress"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg><span data-i18n="nav_prog"></span></button>
+    <button class="nav-tab-btn" id="nav-guidelines" data-tab="guidelines"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg><span data-i18n="nav_guide"></span></button>
+  </nav>
+</div>
+
+<!-- ================= Profile / onboarding ================= -->
+<div class="modal-overlay" id="modalProfile" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+  <div class="modal-card">
+    <div class="modal-header"><h2 class="modal-title" id="profileTitle" data-i18n="ob_title"></h2><button class="btn-modal-close" data-action="close-modal" id="profileClose" aria-label="إغلاق" data-i18n-aria="close">✕</button></div>
+    <div class="step-indicators" aria-hidden="true"><span class="step-dot active" id="dot1"></span><span class="step-dot" id="dot2"></span></div>
+    <form id="profileForm" novalidate>
+      <div id="obStep1">
+        <div class="form-group"><label class="form-label" for="pName" data-i18n="ob_name"></label><input class="form-control" id="pName" maxlength="40" autocomplete="given-name"></div>
+        <div class="form-grid-2">
+          <div class="form-group"><label class="form-label" for="pGender" data-i18n="ob_sex"></label><select class="form-control" id="pGender"><option value="male" data-i18n="male"></option><option value="female" data-i18n="female"></option></select></div>
+          <div class="form-group"><label class="form-label" for="pBirth" data-i18n="ob_birth"></label><input class="form-control" id="pBirth" type="date" required></div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group"><label class="form-label" for="pHeight" data-i18n="ob_height"></label><input class="form-control" id="pHeight" type="number" inputmode="decimal" min="120" max="230" required></div>
+          <div class="form-group"><label class="form-label" for="pWeight" data-i18n="ob_weight"></label><input class="form-control" id="pWeight" type="number" inputmode="decimal" step="0.1" min="30" max="300" required></div>
+        </div>
+        <div class="form-group"><label class="form-label" for="pActivity" data-i18n="ob_activity"></label>
+          <select class="form-control" id="pActivity"><option value="sedentary" data-i18n="act_sed"></option><option value="light" data-i18n="act_light"></option><option value="moderate" data-i18n="act_mod"></option><option value="active" data-i18n="act_act"></option></select></div>
+        <div class="bmi-preview-box" id="bmiPreview" aria-live="polite"></div>
+        <p class="form-hint" id="obMsg1" role="alert" style="color:#9B2F2A"></p>
+        <button type="button" class="btn-primary" data-action="ob-next" data-i18n="next"></button>
+      </div>
+      <div id="obStep2" hidden>
+        <p class="form-hint" data-i18n="ob_ctx_hint"></p>
+        <label class="check-row"><input type="checkbox" id="pDiabetes"><span data-i18n="ob_diabetes"></span></label>
+        <label class="check-row"><input type="checkbox" id="pDiabMeds"><span data-i18n="ob_diabmeds"></span></label>
+        <label class="check-row" id="pregRow"><input type="checkbox" id="pPregnant"><span data-i18n="ob_preg"></span></label>
+        <div class="form-grid-2">
+          <div class="form-group"><label class="form-label" for="pWaist" data-i18n="ob_waist"></label><input class="form-control" id="pWaist" type="number" inputmode="decimal" min="40" max="200"></div>
+          <div class="form-group"><label class="form-label" for="pAlcohol" data-i18n="ob_alcohol"></label><input class="form-control" id="pAlcohol" type="number" inputmode="numeric" min="0" max="100" value="0"></div>
+        </div>
+        <div class="form-group"><label class="form-label" for="pViral" data-i18n="ob_viral"></label>
+          <select class="form-control" id="pViral"><option value="unknown" data-i18n="v_unknown"></option><option value="negative" data-i18n="v_neg"></option><option value="treated" data-i18n="v_treated"></option><option value="active" data-i18n="v_active"></option></select></div>
+        <div class="disclaimer-bar"><strong data-i18n="disc_title"></strong> <span data-i18n="ob_disc"></span></div>
+        <label class="check-row"><input type="checkbox" id="pConsent"><span data-i18n="ob_consent"></span></label>
+        <p class="form-hint" id="obMsg2" role="alert" style="color:#9B2F2A"></p>
+        <div class="form-grid-2"><button type="button" class="btn-secondary" data-action="ob-back" data-i18n="back"></button><button type="submit" class="btn-primary" data-i18n="save"></button></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= Settings ================= -->
+<div class="modal-overlay" id="modalSettings" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+  <div class="modal-card">
+    <div class="modal-header"><h2 class="modal-title" id="setTitle" data-i18n="set_title"></h2><button class="btn-modal-close" data-action="close-modal" aria-label="إغلاق" data-i18n-aria="close">✕</button></div>
+    <div class="settings-section"><h4 data-i18n="set_ramadan"></h4><label class="check-row"><input type="checkbox" id="setRamadan"><span data-i18n="set_ramadan_txt"></span></label></div>
+    <div class="settings-section"><h4 data-i18n="set_backup"></h4>
+      <p class="form-hint" data-i18n="set_backup_hint"></p>
+      <div class="btn-stack"><button class="btn-secondary" data-action="export-json" data-i18n="set_export"></button><button class="btn-secondary" data-action="import-json" data-i18n="set_import"></button></div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <p class="persist-status" id="persistStatus"></p>
+    </div>
+    <div class="settings-section"><h4 data-i18n="set_privacy"></h4><p class="form-hint" data-i18n="set_privacy_txt"></p>
+      <button class="btn-secondary btn-danger" data-action="delete-all" data-i18n="set_delete"></button></div>
+    <p class="form-hint">Wekaya v2.0 · <span data-i18n="set_edu"></span></p>
+  </div>
+</div>
+
+<!-- ================= FAQ ================= -->
+<div class="modal-overlay" id="modalFaq" role="dialog" aria-modal="true" aria-labelledby="faqTitle">
+  <div class="modal-card">
+    <div class="modal-header"><h2 class="modal-title" id="faqTitle" data-i18n="faq_title"></h2><button class="btn-modal-close" data-action="close-modal" aria-label="إغلاق" data-i18n-aria="close">✕</button></div>
+    <p class="chat-disclosure" data-i18n="faq_disclosure"></p>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+      <div class="chat-quick-questions" id="chatChips"></div>
+      <form class="chat-input-bar" id="chatForm"><input class="chat-input" id="chatInput" maxlength="200" data-i18n-ph="faq_ph" aria-label="سؤال" autocomplete="off"><button class="btn-chat-send" type="submit" aria-label="إرسال" data-i18n-aria="send">➤</button></form>
+    </div>
+    <div class="btn-stack" style="margin-top:10px"><button class="btn-secondary" data-action="copy-summary" data-i18n="faq_copy"></button></div>
+  </div>
+</div>
+
+<!-- ================= Custom food ================= -->
+<div class="modal-overlay" id="modalFood" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+  <div class="modal-card">
+    <div class="modal-header"><h2 class="modal-title" id="cfTitle" data-i18n="food_custom"></h2><button class="btn-modal-close" data-action="close-modal" aria-label="إغلاق" data-i18n-aria="close">✕</button></div>
+    <form id="foodForm" novalidate>
+      <div class="form-group"><label class="form-label" for="cfName" data-i18n="cf_name"></label><input class="form-control" id="cfName" maxlength="50" required></div>
+      <div class="form-group"><label class="form-label" for="cfPortion" data-i18n="cf_portion"></label><input class="form-control" id="cfPortion" maxlength="40"></div>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label" for="cfCal">kcal</label><input class="form-control" id="cfCal" type="number" inputmode="decimal" min="0" max="3000" required></div>
+        <div class="form-group"><label class="form-label" for="cfP" data-i18n="m_protein"></label><input class="form-control" id="cfP" type="number" inputmode="decimal" min="0" max="300"></div>
+        <div class="form-group"><label class="form-label" for="cfC" data-i18n="m_carbs"></label><input class="form-control" id="cfC" type="number" inputmode="decimal" min="0" max="500"></div>
+        <div class="form-group"><label class="form-label" for="cfF" data-i18n="m_fats"></label><input class="form-control" id="cfF" type="number" inputmode="decimal" min="0" max="300"></div>
+      </div>
+      <p class="form-hint" id="cfMsg" role="alert" style="color:#9B2F2A"></p>
+      <button class="btn-primary" type="submit" data-i18n="save"></button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= Language Picker (first visit only) ================= -->
+<div class="lang-picker-overlay" id="langPicker" role="dialog" aria-modal="true" aria-label="Language / اللغة" hidden>
+  <div class="lang-picker-card">
+    <img src="logo.png" alt="" class="lang-picker-logo" width="72" height="72">
+    <h1 class="lang-picker-title">وقاية &nbsp;·&nbsp; Wekaya</h1>
+    <p class="lang-picker-sub">اختر لغتك المفضلة &nbsp;/&nbsp; Choose your language</p>
+    <div class="lang-picker-btns">
+      <button class="lang-picker-btn" id="pickAr" lang="ar" dir="rtl">العربية</button>
+      <button class="lang-picker-btn" id="pickEn" lang="en" dir="ltr">English</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-notice" id="toast" role="status" aria-live="polite"></div>
+<script src="data.js"></script>
+<script src="calculations.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
